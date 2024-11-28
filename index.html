@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scroll Video</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #7b9794;
+    }
+
+    .video-section {
+      height: 100vh; /* This will be dynamically adjusted */
+    }
+
+    .video-container {
+      position: fixed; /* Keeps the video in place during playback */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); /* Center the video */
+      width: 100%; /* Cover the viewport width */
+      height: 100%; /* Cover the viewport height */
+      object-fit: cover; /* Scale the video while maintaining aspect ratio */
+    }
+
+    .content {
+      background: #7b9794;
+      padding: 50px;
+      min-height: 100vh; /* At least one full viewport height */
+      position: relative;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+ 
+  <h1>Volcano</h1>
+  <br><br><br>
+
+  <div class="video-section">
+    <div class="video-container">
+      <video id="scrollVideo" src="file_1920x1080-5400-v4-1.mp4" muted></video>
+    </div>
+  </div>
+
+  <div class="content" id="articleContent">
+
+    <br><br><br><br><br>
+    <h1>‘An Impending Doom’</h1>
+    <p>
+      Volcanic activity is a fact of life in Tonga. Residents are well attuned to the risks posed by falling ash and ocean swells that can result from shallow-water eruptions — though nobody could have predicted the events of January 2022.
+    </p>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const video = document.getElementById("scrollVideo");
+      const speedFactor = 0.1; // Playback speed
+
+      // Ensure GSAP and ScrollTrigger are loaded
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Wait for the video metadata to load
+      video.addEventListener("loadedmetadata", () => {
+        const originalDuration = video.duration;
+        const scrollDuration = window.innerHeight * (1 / speedFactor);
+
+        // Dynamically set the height of the video section
+        const videoSection = document.querySelector(".video-section");
+        videoSection.style.height = `${scrollDuration}px`;
+
+        // Create ScrollTrigger for video
+        ScrollTrigger.create({
+          trigger: ".video-section",
+          start: "top top",
+          end: `+=${scrollDuration}`, // Matches the calculated height
+          pin: ".video-container",
+          scrub: true,
+          onUpdate: (self) => {
+            video.currentTime = self.progress * originalDuration; // Sync video playback
+          },
+        });
+
+        // Article scrolling naturally after the video
+        ScrollTrigger.create({
+          trigger: ".content",
+          start: `top top`, // Trigger immediately after the video unpins
+          end: "bottom bottom",
+          pin: false, // No pinning for article
+        });
+      });
+    });
+  </script>
+</body>
+</html>
